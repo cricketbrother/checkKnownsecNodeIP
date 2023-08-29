@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"net"
 	"strconv"
 	"strings"
@@ -37,7 +38,7 @@ func printNodeCIDRs(nodeCIDRsString string) {
 	println("Node List:")
 	for i, nodeCIDR := range nodeCIDRsSlice {
 		if i > 0 {
-			println("  " + strconv.Itoa(i) + ". " + nodeCIDR)
+			fmt.Printf("%*s) %s\n", 4, strconv.Itoa(i), nodeCIDR)
 		}
 	}
 }
