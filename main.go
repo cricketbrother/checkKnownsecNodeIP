@@ -11,7 +11,7 @@ var nodeCIDRsString = ""
 
 func getNodeCIDRs(nodeCIDRsString string) (string, []*net.IPNet, error) {
 	var nodeDate string
-	nodeCIDRsSlice := strings.Split(nodeCIDRsString, "\n")
+	nodeCIDRsSlice := strings.Split(nodeCIDRsString, ",")
 	nodeDate = nodeCIDRsSlice[0]
 	_, err := time.Parse("2006-01-02", nodeDate)
 	if err != nil {
