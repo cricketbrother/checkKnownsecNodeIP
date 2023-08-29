@@ -20,11 +20,13 @@ func getNodeCIDRs(nodeCIDRsString string) (string, []*net.IPNet, error) {
 	nodeCIDRsSlice = nodeCIDRsSlice[1:]
 	var nodeCIDRs []*net.IPNet
 	for _, nodeCIDR := range nodeCIDRsSlice {
-		_, nodeCIDR, err := net.ParseCIDR(nodeCIDR)
-		if err != nil {
-			return "", nil, err
+		if nodeCIDR != "" {
+			_, nodeCIDR, err := net.ParseCIDR(nodeCIDR)
+			if err != nil {
+				return "", nil, err
+			}
+			nodeCIDRs = append(nodeCIDRs, nodeCIDR)
 		}
-		nodeCIDRs = append(nodeCIDRs, nodeCIDR)
 	}
 	return nodeDate, nodeCIDRs, nil
 }
