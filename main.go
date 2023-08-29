@@ -32,7 +32,7 @@ func getNodeCIDRs(nodeCIDRsString string) (string, []*net.IPNet, error) {
 }
 
 func printNodeCIDRs(nodeCIDRsString string) {
-	nodeCIDRsSlice := strings.Split(nodeCIDRsString, "\n")
+	nodeCIDRsSlice := strings.Split(nodeCIDRsString, ",")
 	for _, nodeCIDR := range nodeCIDRsSlice {
 		println(nodeCIDR)
 	}
