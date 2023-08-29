@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"net"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -33,8 +34,11 @@ func getNodeCIDRs(nodeCIDRsString string) (string, []*net.IPNet, error) {
 
 func printNodeCIDRs(nodeCIDRsString string) {
 	nodeCIDRsSlice := strings.Split(nodeCIDRsString, ",")
-	for _, nodeCIDR := range nodeCIDRsSlice {
-		println(nodeCIDR)
+	println("Node List:")
+	for i, nodeCIDR := range nodeCIDRsSlice {
+		if i > 0 {
+			println("  " + strconv.Itoa(i) + ". " + nodeCIDR)
+		}
 	}
 }
 
