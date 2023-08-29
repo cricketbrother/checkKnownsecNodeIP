@@ -36,6 +36,10 @@ jobs:
               id: nodes
               run: |
                 nodes=""
+                while IFS= read -r line; do
+                    content="${content}${line}"$','
+                done < "nodes.txt"
+                echo "$nodes"
                 echo "nodes=$nodes" >> $GITHUB_OUTPUT
 
             - name: Build
