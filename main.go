@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gookit/color"
 )
 
 var nodeCIDRsString = ""
@@ -90,9 +92,9 @@ func main() {
 
 	for _, nodeCIDR := range nodeCIDRs {
 		if nodeCIDR.Contains(ip) {
-			println(ipStr + " IS a knownsec node ip")
+			println(color.New(color.BgGreen, color.Bold).Sprint("[√]") + " " + ipStr + " IS a knownsec node ip")
 			return
 		}
 	}
-	println(ipStr + " IS NOT a knownsec node ip")
+	println(color.New(color.BgRed, color.Bold).Sprint("[X]") + " " + ipStr + " IS NOT a knownsec node ip")
 }
