@@ -64,7 +64,7 @@ func initFlag() (string, string, bool) {
 func main() {
 	nodeDate, nodeCIDRs, err := getNodeCIDRs(nodeCIDRsString)
 	if err != nil {
-		println("node.txt format error, the first line must be a date(YYYY-mm-dd) and the following lines must be legal CIDRs format")
+		println("node.txt format error, the first line must be a date (format 'YYYY-mm-dd') and the following lines must be legal CIDRs format")
 		return
 	}
 
