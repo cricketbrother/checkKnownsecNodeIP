@@ -35,10 +35,7 @@ jobs:
             - name: Get Nodes
               id: nodes
               run: |
-                nodes=""
-                while IFS= read -r line; do
-                    content="${content}${line}"$','
-                done < "nodes.txt"
+                nodes=$(sed -E ':a;N;s/[\r]?\n/,/g;ba' nodes.txt)
                 echo "$nodes"
                 echo "nodes=$nodes" >> $GITHUB_OUTPUT
 
