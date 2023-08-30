@@ -93,7 +93,7 @@ func initFlag() (string, string, bool) {
 		println("  checkKnownsecNodeIP -p")
 	}
 	ipStr := flag.String("a", "", "ip address")
-	nodeFile := flag.String("f", "", "ip address")
+	nodeFile := flag.String("f", "", "node file path")
 	printNodes := flag.Bool("p", false, "print node ip list")
 	flag.Parse()
 	return *ipStr, *nodeFile, *printNodes
