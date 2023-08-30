@@ -1,7 +1,7 @@
 package main
 
 import (
-	_ "embed"
+	"embed"
 	"flag"
 	"fmt"
 	"net"
@@ -11,7 +11,43 @@ import (
 	"time"
 
 	"github.com/gookit/color"
+	"github.com/oschwald/geoip2-golang"
 )
+
+//go:embed GeoLite2-City.mmdb
+var geoLite2CityFS embed.FS
+
+func geoLite2(ip string) string {
+	geoLite2CityBytes, err := geoLite2CityFS.ReadFile("GeoLite2-City.mmdb")
+	if err != nil {
+		return "unknown"
+	}
+	db, err := geoip2.FromBytes(geoLite2CityBytes)
+	if err != nil {
+		return "unknown"
+	}
+	defer db.Close()
+	record, err := db.City(net.ParseIP(ip))
+	if err != nil {
+		return "unknown"
+	}
+	country, ok := record.Country.Names["en"]
+	if !ok {
+		return "unknown"
+	}
+	if len(record.Subdivisions) == 0 {
+		return fmt.Sprintf("[%s]", country)
+	}
+	subdivision, ok := record.Subdivisions[0].Names["en"]
+	if !ok {
+		return fmt.Sprintf("[%s]", country)
+	}
+	city, ok := record.City.Names["en"]
+	if !ok {
+		return fmt.Sprintf("[%s][%s]", country, subdivision)
+	}
+	return fmt.Sprintf("[%s][%s][%s]", country, subdivision, city)
+}
 
 //go:embed nodes.txt
 var nodeCIDRsString string
@@ -107,5 +143,5 @@ func main() {
 			return
 		}
 	}
-	println(color.New(color.BgRed, color.Bold).Sprint("[X]") + " " + ipStr + " IS NOT a knownsec node ip")
+	println(color.New(color.BgRed, color.Bold).Sprint("[X]") + " " + ipStr + " IS NOT a knownsec node ip, ip location: " + geoLite2(ipStr))
 }
