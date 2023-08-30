@@ -17,16 +17,15 @@ import (
 //go:embed GeoLite2-City.mmdb
 var geoLite2CityFS embed.FS
 
-func geoLite2(ip string) string {
+func getGeoLite2CityMMDB() (*geoip2.Reader, error) {
 	geoLite2CityBytes, err := geoLite2CityFS.ReadFile("GeoLite2-City.mmdb")
 	if err != nil {
-		return "unknown"
+		return nil, err
 	}
-	db, err := geoip2.FromBytes(geoLite2CityBytes)
-	if err != nil {
-		return "unknown"
-	}
-	defer db.Close()
+	return geoip2.FromBytes(geoLite2CityBytes)
+}
+
+func getIPLocation(db *geoip2.Reader, ip string) string {
 	record, err := db.City(net.ParseIP(ip))
 	if err != nil {
 		return "unknown"
@@ -109,8 +108,16 @@ func main() {
 		return
 	}
 
+	db, err := getGeoLite2CityMMDB()
+	if err != nil {
+		println("GeoLite2 city database error")
+		return
+	}
+	defer db.Close()
+
 	println("checkKnownsecNodeIP " + version + ", A tool to check if an IP is a knownsec node ip")
-	println("Nodes Update At: " + nodeDate)
+	println("Node IPs Update At:     " + nodeDate)
+	println("IP Database Update At:  " + time.Unix(int64(db.Metadata().BuildEpoch), 0).Format("2006-01-02"))
 	println()
 
 	ipStr, nodeFile, printNodes := initFlag()
@@ -136,12 +143,14 @@ func main() {
 		println("IP address format error")
 		return
 	}
-
+	
+	println("IP:        " + ipStr)
+	println("Location:  " + getIPLocation(db, ipStr))
 	for _, nodeCIDR := range nodeCIDRs {
 		if nodeCIDR.Contains(ip) {
-			println(color.New(color.BgGreen, color.Bold).Sprint("[√]") + " " + ipStr + " IS a knownsec node ip")
+			println("Node IP:   " + color.New(color.BgGreen, color.Bold).Sprint(" Yes "))
 			return
 		}
 	}
-	println(color.New(color.BgRed, color.Bold).Sprint("[X]") + " " + ipStr + " IS NOT a knownsec node ip, ip location: " + geoLite2(ipStr))
+	println("Node IP:   " + color.New(color.BgRed, color.Bold).Sprint(" No "))
 }
