@@ -1,9 +1,11 @@
 package main
 
 import (
+	_ "embed"
 	"flag"
 	"fmt"
 	"net"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -11,11 +13,12 @@ import (
 	"github.com/gookit/color"
 )
 
-var nodeCIDRsString = ""
+//go:embed nodes.txt
+var nodeCIDRsString string
 
 func getNodeCIDRs(nodeCIDRsString string) (string, []*net.IPNet, error) {
 	var nodeDate string
-	nodeCIDRsSlice := strings.Split(nodeCIDRsString, ",")
+	nodeCIDRsSlice := strings.Split(strings.ReplaceAll(nodeCIDRsString, "\r", ""), "\n")
 	nodeDate = nodeCIDRsSlice[0]
 	_, err := time.Parse("2006-01-02", nodeDate)
 	if err != nil {
@@ -35,13 +38,10 @@ func getNodeCIDRs(nodeCIDRsString string) (string, []*net.IPNet, error) {
 	return nodeDate, nodeCIDRs, nil
 }
 
-func printNodeCIDRs(nodeCIDRsString string) {
-	nodeCIDRsSlice := strings.Split(nodeCIDRsString, ",")
-	println("Node List:")
-	for i, nodeCIDR := range nodeCIDRsSlice {
-		if i > 0 {
-			fmt.Printf("%*s) %s\n", 4, strconv.Itoa(i), nodeCIDR)
-		}
+func printNodeCIDRs(nodeCIDRs []*net.IPNet) {
+	fmt.Println("Node IP CIDRs:")
+	for i, nodeCIDR := range nodeCIDRs {
+		fmt.Printf("%*s) %s\n", 4, strconv.Itoa(i+1), nodeCIDR.String())
 	}
 }
 
@@ -64,19 +64,30 @@ func initFlag() (string, string, bool) {
 	return *ipStr, *nodeFile, *printNodes
 }
 
+var version string = "local-build"
+
 func main() {
 	nodeDate, nodeCIDRs, err := getNodeCIDRs(nodeCIDRsString)
 	if err != nil {
-		println("node.txt format error, the first line must be a date (format 'YYYY-mm-dd') and the following lines must be legal CIDRs format")
+		println("File nodes.txt format error, the first line must be a date (format 'YYYY-mm-dd') and the following lines must be legal CIDRs format")
 		return
 	}
 
-	println("Node IP Update At: " + nodeDate + ", A tool to check if an IP is a knownsec node ip")
+	println("checkSSLProtocol " + version + ", A tool to check if an IP is a knownsec node ip")
+	println("Nodes Update At: " + nodeDate)
 	println()
 
-	ipStr, _, printNodes := initFlag()
+	ipStr, nodeFile, printNodes := initFlag()
+	if nodeFile != "" {
+		nodeCIDRsBytesSlice, err := os.ReadFile(nodeFile)
+		if err != nil {
+			println("Read file error")
+			return
+		}
+		nodeDate, nodeCIDRs, err = getNodeCIDRs(string(nodeCIDRsBytesSlice))
+	}
 	if printNodes {
-		printNodeCIDRs(nodeCIDRsString)
+		printNodeCIDRs(nodeCIDRs)
 		return
 	}
 	if ipStr == "" {
@@ -86,7 +97,7 @@ func main() {
 
 	ip := net.ParseIP(ipStr)
 	if ip == nil {
-		println("ip address format error")
+		println("IP address format error")
 		return
 	}
 

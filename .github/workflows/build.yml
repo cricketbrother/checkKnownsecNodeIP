@@ -32,21 +32,14 @@ jobs:
                 go-version: 'stable'
                 check-latest: true
 
-            - name: Get Nodes
-              id: nodes
-              run: |
-                nodes=$(sed -E ':a;N;s/[\r]?\n/,/g;ba' nodes.txt)
-                echo "$nodes"
-                echo "nodes=$nodes" >> $GITHUB_OUTPUT
-
             - name: Build
               run: |
-                GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.nodeCIDRsString=${{ steps.nodes.outputs.nodes }}" -o ./bin/checkKnownsecNodeIP.darwin.amd64 ./
-                GOOS=darwin GOARCH=arm64 go build -ldflags "-X main.nodeCIDRsString=${{ steps.nodes.outputs.nodes }}" -o ./bin/checkKnownsecNodeIP.darwin.arm64 ./
-                GOOS=linux GOARCH=386 go build -ldflags "-X main.nodeCIDRsString=${{ steps.nodes.outputs.nodes }}" -o ./bin/checkKnownsecNodeIP.linux.386 ./
-                GOOS=linux GOARCH=amd64 go build -ldflags "-X main.nodeCIDRsString=${{ steps.nodes.outputs.nodes }}" -o ./bin/checkKnownsecNodeIP.linux.amd64 ./
-                GOOS=windows GOARCH=386 go build -ldflags "-X main.nodeCIDRsString=${{ steps.nodes.outputs.nodes }}" -o ./bin/checkKnownsecNodeIP.windows.386.exe ./
-                GOOS=windows GOARCH=amd64 go build -ldflags "-X main.nodeCIDRsString=${{ steps.nodes.outputs.nodes }}" -o ./bin/checkKnownsecNodeIP.windows.amd64.exe ./
+                GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.darwin.amd64 ./
+                GOOS=darwin GOARCH=arm64 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.darwin.arm64 ./
+                GOOS=linux GOARCH=386 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.linux.386 ./
+                GOOS=linux GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.linux.amd64 ./
+                GOOS=windows GOARCH=386 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.windows.386.exe ./
+                GOOS=windows GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.windows.amd64.exe ./
 
             - name: Upload Release Assets
               uses: softprops/action-gh-release@v1
