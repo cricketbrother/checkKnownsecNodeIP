@@ -73,7 +73,7 @@ func main() {
 		return
 	}
 
-	println("checkSSLProtocol " + version + ", A tool to check if an IP is a knownsec node ip")
+	println("checkKnownsecNodeIP " + version + ", A tool to check if an IP is a knownsec node ip")
 	println("Nodes Update At: " + nodeDate)
 	println()
 
