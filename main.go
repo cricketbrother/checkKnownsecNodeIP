@@ -223,5 +223,5 @@ func main() {
 			return
 		}
 	}
-	println("Node IP:   " + color.New(color.BgRed, color.Bold).Sprint(" No "))
+	println("Node IP:      " + color.New(color.BgRed, color.Bold).Sprint(" No "))
 }
