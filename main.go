@@ -2,9 +2,12 @@ package main
 
 import (
 	"embed"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"net"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -46,6 +49,73 @@ func getIPLocation(db *geoip2.Reader, ip string) string {
 		return fmt.Sprintf("[%s][%s]", country, subdivision)
 	}
 	return fmt.Sprintf("[%s][%s][%s]", country, subdivision, city)
+}
+
+type IPInfo struct {
+	Type string `json:"type"`
+	Text string `json:"text"`
+	CNIP bool   `json:"cnip"`
+}
+
+type IPData struct {
+	Info1 string `json:"info1"`
+	Info2 string `json:"info2"`
+	Info3 string `json:"info3"`
+	ISP   string `json:"isp"`
+}
+
+type Adcode struct {
+	O string      `json:"o"`
+	P string      `json:"p"`
+	C string      `json:"c"`
+	N string      `json:"n"`
+	R interface{} `json:"r"`
+	A interface{} `json:"a"`
+	I bool        `json:"i"`
+}
+
+type Response struct {
+	Code   int    `json:"code"`
+	Msg    string `json:"msg"`
+	IPInfo IPInfo `json:"ipinfo"`
+	IPData IPData `json:"ipdata"`
+	Adcode Adcode `json:"adcode"`
+	Tips   string `json:"tips"`
+	Time   int64  `json:"time"`
+}
+
+func getIPLocationFromAPI(ip string) string {
+	res, err := http.Get("https://api.vore.top/api/IPdata?ip=" + ip)
+	if err != nil {
+		return "unknown"
+	}
+	defer res.Body.Close()
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return "unknown"
+	}
+	var response Response
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return "unknown"
+	}
+	if response.Code != 200 {
+		return "unknown"
+	}
+	var country, subdivision, city, isp string
+	if response.IPData.Info1 != "" {
+		country = fmt.Sprintf("[%s]", response.IPData.Info1)
+	}
+	if response.IPData.Info2 != "" {
+		subdivision = fmt.Sprintf("[%s]", response.IPData.Info2)
+	}
+	if response.IPData.Info3 != "" {
+		city = fmt.Sprintf("[%s]", response.IPData.Info3)
+	}
+	if response.IPData.ISP != "" {
+		isp = fmt.Sprintf("[%s]", response.IPData.ISP)
+	}
+	return country + subdivision + city + isp
 }
 
 //go:embed nodes.txt
@@ -143,12 +213,13 @@ func main() {
 		println("IP address format error")
 		return
 	}
-	
-	println("IP:        " + ipStr)
-	println("Location:  " + getIPLocation(db, ipStr))
+
+	println("IP:           " + ipStr)
+	println("Location[1]:  " + getIPLocation(db, ipStr))
+	println("Location[2]:  " + getIPLocationFromAPI(ipStr))
 	for _, nodeCIDR := range nodeCIDRs {
 		if nodeCIDR.Contains(ip) {
-			println("Node IP:   " + color.New(color.BgGreen, color.Bold).Sprint(" Yes "))
+			println("Node IP:      " + color.New(color.BgGreen, color.Bold).Sprint(" Yes "))
 			return
 		}
 	}
