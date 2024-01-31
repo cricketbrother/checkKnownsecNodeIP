@@ -32,6 +32,14 @@ jobs:
                 go-version: 'stable'
                 check-latest: true
 
+            - name: Download GeoLite-City.mmdb
+              run: |
+                response_headers=$(curl -I -s -X HEAD  "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=${{ secrets.MAXMIND_LICENSE_KEY }}&suffix=tar.gz")
+                filename=$(echo "$response_headers" | grep -i '^Content-Disposition:' | sed -e 's/^.*filename=//' | tr -d '\r')
+                curl -s -L -o "$filename" "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=${{ secrets.MAXMIND_LICENSE_KEY }}&suffix=tar.gz"
+                tar -xzf "$filename" --strip-components=1 --wildcards --no-anchored '*/GeoLite2-City.mmdb'
+
+
             - name: Build
               run: |
                 GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.darwin.amd64.${{ steps.tag.outputs.tag }} ./
