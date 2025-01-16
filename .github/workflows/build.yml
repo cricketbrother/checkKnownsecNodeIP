@@ -24,10 +24,10 @@ jobs:
                 echo "tag=$tag" >> $GITHUB_OUTPUT
 
             - name: Checkout
-              uses: actions/checkout@v3
+              uses: actions/checkout@main
 
             - name: Setup Go
-              uses: actions/setup-go@v4
+              uses: actions/setup-go@main
               with:
                 go-version: 'stable'
                 check-latest: true
@@ -50,7 +50,7 @@ jobs:
                 GOOS=windows GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.windows.amd64.${{ steps.tag.outputs.tag }}.exe ./
 
             - name: Upload Release Assets
-              uses: softprops/action-gh-release@v1
+              uses: softprops/action-gh-release@master
               with:
                 files: bin/*
                 tag_name: ${{ steps.tag.outputs.tag }}
