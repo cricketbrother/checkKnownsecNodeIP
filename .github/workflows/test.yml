@@ -23,11 +23,6 @@ jobs:
                 tag=$(date +"v%Y.%m.%d.%H%M%S")
                 echo "tag=$tag" >> $GITHUB_OUTPUT
 
-            - name: Install WGET
-              run: |
-                sudo apt update -y
-                sudo apt install wget -y
-
             - name: Checkout
               uses: actions/checkout@main
 
@@ -37,26 +32,28 @@ jobs:
                 go-version: 'stable'
                 check-latest: true
 
-            - name: Download CZDB
+            - name: Download ip2region xdb
               run: |
                 wget https://raw.githubusercontent.com/lionsoul2014/ip2region/refs/heads/master/data/ip2region_v4.xdb
                 wget https://raw.githubusercontent.com/lionsoul2014/ip2region/refs/heads/master/data/ip2region_v6.xdb
+                ls -al
+                pwd
 
 
-            - name: Build
-              run: |
-                GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.darwin.amd64.${{ steps.tag.outputs.tag }} ./
-                GOOS=darwin GOARCH=arm64 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.darwin.arm64.${{ steps.tag.outputs.tag }} ./
-                GOOS=linux GOARCH=386 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.linux.386.${{ steps.tag.outputs.tag }} ./
-                GOOS=linux GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.linux.amd64.${{ steps.tag.outputs.tag }} ./
-                GOOS=windows GOARCH=386 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.windows.386.${{ steps.tag.outputs.tag }}.exe ./
-                GOOS=windows GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.windows.amd64.${{ steps.tag.outputs.tag }}.exe ./
+            # - name: Build
+            #   run: |
+            #     GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.darwin.amd64.${{ steps.tag.outputs.tag }} ./
+            #     GOOS=darwin GOARCH=arm64 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.darwin.arm64.${{ steps.tag.outputs.tag }} ./
+            #     GOOS=linux GOARCH=386 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.linux.386.${{ steps.tag.outputs.tag }} ./
+            #     GOOS=linux GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.linux.amd64.${{ steps.tag.outputs.tag }} ./
+            #     GOOS=windows GOARCH=386 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.windows.386.${{ steps.tag.outputs.tag }}.exe ./
+            #     GOOS=windows GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.windows.amd64.${{ steps.tag.outputs.tag }}.exe ./
 
-            - name: Upload Release Assets
-              uses: softprops/action-gh-release@master
-              with:
-                files: bin/*
-                tag_name: ${{ steps.tag.outputs.tag }}
-                draft: false
-                prerelease: false
-                generate_release_notes: true
+            # - name: Upload Release Assets
+            #   uses: softprops/action-gh-release@master
+            #   with:
+            #     files: bin/*
+            #     tag_name: ${{ steps.tag.outputs.tag }}
+            #     draft: false
+            #     prerelease: false
+            #     generate_release_notes: true
