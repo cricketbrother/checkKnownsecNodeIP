@@ -40,20 +40,20 @@ jobs:
                 pwd
 
 
-            # - name: Build
-            #   run: |
-            #     GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.darwin.amd64.${{ steps.tag.outputs.tag }} ./
-            #     GOOS=darwin GOARCH=arm64 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.darwin.arm64.${{ steps.tag.outputs.tag }} ./
-            #     GOOS=linux GOARCH=386 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.linux.386.${{ steps.tag.outputs.tag }} ./
-            #     GOOS=linux GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.linux.amd64.${{ steps.tag.outputs.tag }} ./
-            #     GOOS=windows GOARCH=386 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.windows.386.${{ steps.tag.outputs.tag }}.exe ./
-            #     GOOS=windows GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.windows.amd64.${{ steps.tag.outputs.tag }}.exe ./
+            - name: Build
+              run: |
+                GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.darwin.amd64.${{ steps.tag.outputs.tag }} ./
+                GOOS=darwin GOARCH=arm64 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.darwin.arm64.${{ steps.tag.outputs.tag }} ./
+                GOOS=linux GOARCH=386 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.linux.386.${{ steps.tag.outputs.tag }} ./
+                GOOS=linux GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.linux.amd64.${{ steps.tag.outputs.tag }} ./
+                GOOS=windows GOARCH=386 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.windows.386.${{ steps.tag.outputs.tag }}.exe ./
+                GOOS=windows GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.tag.outputs.tag }}" -o ./bin/checkKnownsecNodeIP.windows.amd64.${{ steps.tag.outputs.tag }}.exe ./
 
-            # - name: Upload Release Assets
-            #   uses: softprops/action-gh-release@master
-            #   with:
-            #     files: bin/*
-            #     tag_name: ${{ steps.tag.outputs.tag }}
-            #     draft: false
-            #     prerelease: false
-            #     generate_release_notes: true
+            - name: Upload Release Assets
+              uses: softprops/action-gh-release@master
+              with:
+                files: bin/*
+                tag_name: ${{ steps.tag.outputs.tag }}
+                draft: false
+                prerelease: false
+                generate_release_notes: true
