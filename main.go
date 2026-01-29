@@ -1,121 +1,23 @@
 package main
 
 import (
-	"embed"
-	"encoding/json"
+	_ "embed"
 	"flag"
 	"fmt"
-	"io"
 	"net"
-	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/gookit/color"
-	"github.com/oschwald/geoip2-golang"
 )
 
-//go:embed GeoLite2-City.mmdb
-var geoLite2CityFS embed.FS
-
-func getGeoLite2CityMMDB() (*geoip2.Reader, error) {
-	geoLite2CityBytes, err := geoLite2CityFS.ReadFile("GeoLite2-City.mmdb")
-	if err != nil {
-		return nil, err
+func If(condition bool, trueVal, falseVal string) string {
+	if condition {
+		return trueVal
 	}
-	return geoip2.FromBytes(geoLite2CityBytes)
-}
-
-func getIPLocation(db *geoip2.Reader, ip string) string {
-	record, err := db.City(net.ParseIP(ip))
-	if err != nil {
-		return "unknown"
-	}
-	country, ok := record.Country.Names["en"]
-	if !ok {
-		return "unknown"
-	}
-	if len(record.Subdivisions) == 0 {
-		return fmt.Sprintf("[%s]", country)
-	}
-	subdivision, ok := record.Subdivisions[0].Names["en"]
-	if !ok {
-		return fmt.Sprintf("[%s]", country)
-	}
-	city, ok := record.City.Names["en"]
-	if !ok {
-		return fmt.Sprintf("[%s][%s]", country, subdivision)
-	}
-	return fmt.Sprintf("[%s][%s][%s]", country, subdivision, city)
-}
-
-type IPInfo struct {
-	Type string `json:"type"`
-	Text string `json:"text"`
-	CNIP bool   `json:"cnip"`
-}
-
-type IPData struct {
-	Info1 string `json:"info1"`
-	Info2 string `json:"info2"`
-	Info3 string `json:"info3"`
-	ISP   string `json:"isp"`
-}
-
-type Adcode struct {
-	O string      `json:"o"`
-	P string      `json:"p"`
-	C string      `json:"c"`
-	N string      `json:"n"`
-	R interface{} `json:"r"`
-	A interface{} `json:"a"`
-	I bool        `json:"i"`
-}
-
-type Response struct {
-	Code   int    `json:"code"`
-	Msg    string `json:"msg"`
-	IPInfo IPInfo `json:"ipinfo"`
-	IPData IPData `json:"ipdata"`
-	Adcode Adcode `json:"adcode"`
-	Tips   string `json:"tips"`
-	Time   int64  `json:"time"`
-}
-
-func getIPLocationFromAPI(ip string) string {
-	res, err := http.Get("https://api.vore.top/api/IPdata?ip=" + ip)
-	if err != nil {
-		return "unknown"
-	}
-	defer res.Body.Close()
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return "unknown"
-	}
-	var response Response
-	err = json.Unmarshal(body, &response)
-	if err != nil {
-		return "unknown"
-	}
-	if response.Code != 200 {
-		return "unknown"
-	}
-	var country, subdivision, city, isp string
-	if response.IPData.Info1 != "" {
-		country = fmt.Sprintf("[%s]", response.IPData.Info1)
-	}
-	if response.IPData.Info2 != "" {
-		subdivision = fmt.Sprintf("[%s]", response.IPData.Info2)
-	}
-	if response.IPData.Info3 != "" {
-		city = fmt.Sprintf("[%s]", response.IPData.Info3)
-	}
-	if response.IPData.ISP != "" {
-		isp = fmt.Sprintf("[%s]", response.IPData.ISP)
-	}
-	return country + subdivision + city + isp
+	return falseVal
 }
 
 //go:embed nodes.txt
@@ -178,16 +80,9 @@ func main() {
 		return
 	}
 
-	db, err := getGeoLite2CityMMDB()
-	if err != nil {
-		println("GeoLite2 city database error")
-		return
-	}
-	defer db.Close()
-
 	println("checkKnownsecNodeIP " + version + ", A tool to check if an IP is a knownsec node ip")
 	println("Node IPs Update At:     " + nodeDate)
-	println("IP Database Update At:  " + time.Unix(int64(db.Metadata().BuildEpoch), 0).Format("2006-01-02"))
+	// println("IP Database Update At:  " + time.Unix(int64(db.Metadata().BuildEpoch), 0).Format("2006-01-02"))
 	println()
 
 	ipStr, nodeFile, printNodes := initFlag()
@@ -215,8 +110,9 @@ func main() {
 	}
 
 	println("IP:           " + ipStr)
-	println("Location[1]:  " + getIPLocation(db, ipStr))
-	println("Location[2]:  " + getIPLocationFromAPI(ipStr))
+	println("Location[1]:  " + getIpLocationByIp2Region(ipStr))
+	println("Location[2]:  " + getIpLocationByVore(ipStr))
+	println("Location[3]:  " + getIpLocationByMir6(ipStr))
 	for _, nodeCIDR := range nodeCIDRs {
 		if nodeCIDR.Contains(ip) {
 			println("Node IP:      " + color.New(color.BgGreen, color.Bold).Sprint(" Yes "))

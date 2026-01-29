@@ -23,10 +23,10 @@ jobs:
                 tag=$(date +"v%Y.%m.%d.%H%M%S")
                 echo "tag=$tag" >> $GITHUB_OUTPUT
 
-            - name: Install Unzip
+            - name: Install WGET
               run: |
                 sudo apt update -y
-                sudo apt install unzip -y
+                sudo apt install wget -y
 
             - name: Checkout
               uses: actions/checkout@main
@@ -39,8 +39,8 @@ jobs:
 
             - name: Download CZDB
               run: |
-                curl -s -L -o "czdb.zip" "https://www.cz88.net/api/communityIpAuthorization/communityIpDbFile?fn=czdb&key=${{ secrets.CZDB_DOWNLOAD_KEY }}"
-                unzip czdb.zip
+                wget https://raw.githubusercontent.com/lionsoul2014/ip2region/refs/heads/master/data/ip2region_v4.xdb
+                wget https://raw.githubusercontent.com/lionsoul2014/ip2region/refs/heads/master/data/ip2region_v6.xdb
 
 
             - name: Build
