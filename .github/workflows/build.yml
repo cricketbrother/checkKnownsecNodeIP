@@ -1,9 +1,9 @@
-name: Auto Build
+name: Auto Build Test
 
 on:
-    # push:
-    #     branches:
-    #         - main
+    push:
+        branches:
+            - main
     workflow_dispatch:
 
 permissions:
@@ -32,12 +32,12 @@ jobs:
                 go-version: 'stable'
                 check-latest: true
 
-            - name: Download GeoLite-City.mmdb
+            - name: Download ip2region xdb
               run: |
-                response_headers=$(curl -I -s -X HEAD  "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=${{ secrets.MAXMIND_LICENSE_KEY }}&suffix=tar.gz")
-                filename=$(echo "$response_headers" | grep -i '^Content-Disposition:' | sed -e 's/^.*filename=//' | tr -d '\r')
-                curl -s -L -o "$filename" "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=${{ secrets.MAXMIND_LICENSE_KEY }}&suffix=tar.gz"
-                tar -xzf "$filename" --strip-components=1 --wildcards --no-anchored '*/GeoLite2-City.mmdb'
+                wget https://raw.githubusercontent.com/lionsoul2014/ip2region/refs/heads/master/data/ip2region_v4.xdb
+                wget https://raw.githubusercontent.com/lionsoul2014/ip2region/refs/heads/master/data/ip2region_v6.xdb
+                ls -al
+                pwd
 
 
             - name: Build

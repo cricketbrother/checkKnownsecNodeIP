@@ -64,11 +64,23 @@ func getIpLocationByVore(ip string) string {
 		return "unknown"
 	}
 
-	country := If(response.IPInfo.CNIP, "中国", response.IPData.Info1)
-	subdivision := If(response.IPData.Info2 != "", response.IPData.Info2, "0")
-	city := If(response.IPData.Info3 != "", response.IPData.Info3, "0")
-	isp := If(response.IPData.ISP != "", response.IPData.ISP, "0")
+	var country, subdivision, city, isp string
+	if response.IPInfo.CNIP {
+		country = "中国"
+		subdivision = response.IPData.Info1
+		city = response.IPData.Info2
+		isp = response.IPData.ISP
+	} else {
+		country = response.IPData.Info1
+		subdivision = response.IPData.Info2
+		city = response.IPData.Info3
+		isp = response.IPData.ISP
+	}
+
+	country = If(country == "", "0", country)
+	subdivision = If(subdivision == "", "0", subdivision)
+	city = If(city == "", "0", city)
+	isp = If(isp == "", "0", isp)
 
 	return fmt.Sprintf("%s|%s|%s|%s|vore-api|online", country, subdivision, city, isp)
 }
-
